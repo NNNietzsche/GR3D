@@ -1,0 +1,11 @@
+Echo Room Unity - Gemini LLM setup
+
+1. Double click start-gemini-proxy.cmd.
+2. Paste your Gemini API key into the window.
+3. Keep that window open.
+4. Open Unity and press Play.
+
+Unity talks to:
+http://127.0.0.1:8787/echo-room
+
+If the proxy is closed, quota is exceeded, or the API fails, the game still runs with local fallback prompts.

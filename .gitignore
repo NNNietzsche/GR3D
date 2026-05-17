@@ -1,0 +1,39 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# Unity recovery/autosave
+Assets/_Recovery/
+Assets/_Recovery.meta
+
+# Visual Studio / Rider / OS files
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.tmp
+*.bak
+*.swp
+*.suo
+.DS_Store
+Thumbs.db
+
+# Local logs and generated scratch files
+compile.log
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using System.Text;
 using EchoRoom.Core;
 using UnityEngine;
@@ -42,6 +43,13 @@ namespace EchoRoom.UI
         private FortuneResult pendingFortune;
         private int languageIndex;
 
+        public static event Action<int> LanguageChanged;
+
+        public int LanguageIndex
+        {
+            get { return languageIndex; }
+        }
+
         private void Awake()
         {
             EnsureEventSystem();
@@ -78,6 +86,11 @@ namespace EchoRoom.UI
         {
             if (started || gameManager == null) return;
             ConfigureLanguageDropdown();
+            gameManager.SetLanguageIndex(languageIndex);
+            if (gameManager.GeminiClient != null)
+            {
+                gameManager.GeminiClient.SetLanguageIndex(languageIndex);
+            }
             ApplyLanguage();
             if (setupPanel != null) setupPanel.SetActive(true);
             if (cardPanel != null) cardPanel.SetActive(false);
@@ -109,7 +122,7 @@ namespace EchoRoom.UI
             if (gameManager == null || gameManager.IsBusy) return;
 
             RefreshRollButton();
-            await gameManager.RollAndResolve(Random.Range(1, 7));
+            await gameManager.RollAndResolve(UnityEngine.Random.Range(1, 7));
             RefreshRollButton();
             UpdateScoreboard();
         }
@@ -250,9 +263,18 @@ namespace EchoRoom.UI
         private void OnLanguageChanged(int value)
         {
             languageIndex = Mathf.Clamp(value, 0, 2);
+            if (gameManager != null)
+            {
+                gameManager.SetLanguageIndex(languageIndex);
+            }
             if (gameManager != null && gameManager.GeminiClient != null)
             {
                 gameManager.GeminiClient.SetLanguageIndex(languageIndex);
+            }
+            if (logs.Count > 0)
+            {
+                logs.Clear();
+                if (logText != null) logText.text = "";
             }
             ApplyLanguage();
         }
@@ -275,7 +297,7 @@ namespace EchoRoom.UI
             if (setupTargetLabel != null) setupTargetLabel.text = T("winScore");
             SetButtonText(startButton, T("start"));
             SetButtonText(rollButton, T("roll"));
-            if (!started && promptInput != null && string.IsNullOrWhiteSpace(promptInput.text))
+            if (!started && promptInput != null && IsDefaultPromptText(promptInput.text))
             {
                 promptInput.text = DefaultPrompt();
             }
@@ -288,6 +310,7 @@ namespace EchoRoom.UI
                 }
                 UpdateScoreboard();
             }
+            if (LanguageChanged != null) LanguageChanged.Invoke(languageIndex);
         }
 
         private string T(string key)
@@ -382,9 +405,18 @@ namespace EchoRoom.UI
             return "朋友在客厅围坐玩真心话大冒险，桌上有饮料和骰子。";
         }
 
+        private static bool IsDefaultPromptText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return true;
+            string trimmed = text.Trim();
+            return trimmed == "朋友在客厅围坐玩真心话大冒险，桌上有饮料和骰子。"
+                || trimmed == "Friends sit around a living room table playing truth or dare with drinks and dice."
+                || trimmed == "友人たちがリビングのテーブルを囲み、飲み物とサイコロで真実か挑戦を遊ぶ。";
+        }
+
         private static void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null) return;
+            if (FindFirstObjectByType<EventSystem>() != null) return;
 
             GameObject eventSystemObject = new GameObject("EventSystem");
             eventSystemObject.AddComponent<EventSystem>();

@@ -31,6 +31,7 @@ public static class EchoRoomSceneBuilder
 
         GameObject boardRoot = new GameObject("Board");
         PlayerPieceView pieceView = boardRoot.AddComponent<PlayerPieceView>();
+        boardRoot.AddComponent<BoardLabelLocalizer>();
         BuildBoard(boardRoot.transform);
         BuildPlayers(boardRoot.transform);
         Connect(pieceView, "gameManager", manager);
